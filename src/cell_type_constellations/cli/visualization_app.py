@@ -75,12 +75,18 @@ class Visualizer(object):
             color_by=None,
             hull_level=None,
             default=False,
-            fill_hulls='false'):
+            fill_hulls='false',
+            export_png='false'):
 
         if fill_hulls == 'true':
             fill_hulls = True
         else:
             fill_hulls = False
+
+        if export_png == 'true':
+            export_png = True
+        else:
+            export_png = False
 
         config = self.constellation_plot_config[taxonomy_name]
 
@@ -101,7 +107,8 @@ class Visualizer(object):
                 hull_level=hull_level,
                 base_url=base_url,
                 color_by=color_by,
-                fill_hulls=fill_hulls)
+                fill_hulls=fill_hulls,
+                export_png=export_png)
 
         return html
 

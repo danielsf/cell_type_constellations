@@ -1,7 +1,10 @@
+import cairosvg
 import copy
 import h5py
 import json
 import pathlib
+
+import cell_type_constellations
 
 from cell_type_mapper.taxonomy.taxonomy_tree import (
     TaxonomyTree
@@ -20,7 +23,14 @@ def get_constellation_plot_page(
         hull_level,
         base_url,
         color_by,
-        fill_hulls):
+        fill_hulls,
+        export_png):
+
+    constellation_path = pathlib.Path(
+        cell_type_constellations.__file__
+    )
+    png_dir = constellation_path.parent.parent.parent / 'screenshots'
+    assert png_dir.is_dir()
 
     if hull_level == 'NA':
         hull_level = None
@@ -28,12 +38,18 @@ def get_constellation_plot_page(
     centroid_stats = None
 
     with h5py.File(hdf5_path, 'r') as src:
+
+        width = src['fov']['width'][()]
+        height = src['fov']['height'][()]
+
         taxonomy_tree = TaxonomyTree(
             data=json.loads(src['taxonomy_tree'][()].decode('utf-8'))
         )
         taxonomy_name = src['taxonomy_name'][()].decode('utf-8')
+
         centroid_level_list = list(src['centroids'].keys())
         hull_level_list = list(src['hulls'].keys())
+
         if 'stats' in src['centroids'][centroid_level_list[0]].keys():
             centroid_stats = list(
                 src['centroids'][centroid_level_list[0]]['stats'].keys()
@@ -56,6 +72,17 @@ def get_constellation_plot_page(
             color_by=color_by,
             fill_hulls=fill_hulls
         )
+
+        if export_png:
+            png_path = png_dir / 'test.png'
+            cairosvg.svg2png(
+                bytestring=html,
+                write_to=str(png_path),
+                background_color='white',
+                output_width=4*width,
+                output_height=4*height
+            )
+
     else:
         centroid_name = taxonomy_tree.level_to_name(centroid_level)
         color_name = taxonomy_tree.level_to_name(color_by)

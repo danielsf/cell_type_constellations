@@ -8,6 +8,7 @@ version = "0.0.1"
 description = "prototype tools for generating constellation plots"
 dependencies = [
     "anndata",
+    "cairosvg",
     "cherrypy",
     "h5py",
     "matplotlib",
